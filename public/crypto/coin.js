@@ -55,7 +55,7 @@
     // Update meta description
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `${coin.name} price, market cap, and detailed information. Current price: ${Format.currency(coin.market_data?.current_price?.usd)}`);
+      metaDesc.setAttribute('content', `${coin.name} price, market cap, and detailed information. Current price: ${Format.currency(coin.market_data?.current_price?.inr)}`);
     }
     
     // Image
@@ -67,7 +67,7 @@
     elements.coinSymbol.textContent = coin.symbol.toUpperCase();
     
     // Price
-    const currentPrice = coin.market_data?.current_price?.usd;
+    const currentPrice = coin.market_data?.current_price?.inr;
     elements.coinPrice.textContent = Format.currency(currentPrice);
     
     // 24h change
@@ -76,10 +76,10 @@
     elements.coinChange.className = `coin-change ${priceChange >= 0 ? 'positive' : 'negative'}`;
     
     // Stats
-    elements.statMarketcap.textContent = Format.compactCurrency(coin.market_data?.market_cap?.usd);
-    elements.statHigh.textContent = Format.currency(coin.market_data?.high_24h?.usd);
-    elements.statLow.textContent = Format.currency(coin.market_data?.low_24h?.usd);
-    elements.statVolume.textContent = Format.compactCurrency(coin.market_data?.total_volume?.usd);
+    elements.statMarketcap.textContent = Format.compactCurrency(coin.market_data?.market_cap?.inr);
+    elements.statHigh.textContent = Format.currency(coin.market_data?.high_24h?.inr);
+    elements.statLow.textContent = Format.currency(coin.market_data?.low_24h?.inr);
+    elements.statVolume.textContent = Format.compactCurrency(coin.market_data?.total_volume?.inr);
     
     // Description (sanitized)
     const rawDescription = coin.description?.en || '';

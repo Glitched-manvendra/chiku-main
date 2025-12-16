@@ -43,7 +43,7 @@
   
   // ============ API ============
   async function fetchCoinsPage(page) {
-    const endpoint = `/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${state.perPage}&page=${page}&sparkline=false`;
+    const endpoint = `/coins/markets?vs_currency=inr&order=market_cap_desc&per_page=${state.perPage}&page=${page}&sparkline=false`;
     return API.fetch(endpoint, { key: `markets-page-${page}` });
   }
   
