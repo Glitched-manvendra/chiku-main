@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Live cryptocurrency market data - Track Bitcoin, Ethereum, and thousands of altcoins with real-time prices, 24h changes, and market caps.">
+  <meta name="keywords" content="crypto markets, cryptocurrency prices, bitcoin price, ethereum price, altcoins, market cap">
+  <meta name="theme-color" content="#0a0f1e">
+  
+  <title>Markets - CryptoTracker</title>
+  
+  <link rel="preconnect" href="https://api.coingecko.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="canonical" href="markets.html">
+</head>
+<body class="page-markets">
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Logo -->
+        <a href="index.html" class="logo" aria-label="CryptoTracker Home">
+          <div class="logo-icon" aria-hidden="true">CT</div>
+          <span>CryptoTracker</span>
+        </a>
+        
+        <!-- Search -->
+        <div class="search-wrapper">
+          <label for="search-input" class="sr-only">Search cryptocurrencies</label>
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input 
+            type="search" 
+            id="search-input" 
+            class="search-input" 
+            placeholder="Search by name or symbol..."
+            autocomplete="off"
+            aria-label="Search cryptocurrencies by name or symbol"
+          >
+        </div>
+        
+        <!-- Actions -->
+        <div class="header-actions">
+          <button 
+            id="theme-toggle" 
+            class="theme-toggle" 
+            type="button"
+            aria-label="Toggle dark/light mode"
+          >
+            <!-- Icon injected by JS -->
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <main class="markets-content" role="main">
+    <div class="container">
+      <!-- Markets Header -->
+      <div class="markets-header">
+        <div>
+          <h1 class="markets-title">Cryptocurrency Markets</h1>
+          <p class="last-updated" id="last-updated" aria-live="polite">Loading...</p>
+        </div>
+        <div class="live-indicator" id="live-indicator" aria-label="Live data indicator">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Live</span>
+        </div>
+      </div>
+      
+      <!-- Rate Limit Warning -->
+      <div class="rate-limit-warning" id="rate-limit-warning" style="display: none;" role="alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span id="rate-limit-message">Rate limited, slowing updates...</span>
+      </div>
+      
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table class="crypto-table" role="grid" aria-label="Cryptocurrency market data">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">24h %</th>
+              <th scope="col">Market Cap</th>
+            </tr>
+          </thead>
+          <tbody id="crypto-table-body" aria-live="polite">
+            <!-- Data loaded by JS -->
+          </tbody>
+        </table>
+        
+        <!-- Loading Skeleton -->
+        <div id="loading-skeleton" aria-label="Loading cryptocurrency data">
+          <!-- Skeleton rows injected by JS -->
+        </div>
+        
+        <!-- Error State -->
+        <div id="error-state" class="error-state" style="display: none;" role="alert">
+          <div class="error-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3 class="error-title">Unable to load data</h3>
+          <p class="error-message" id="error-message">Something went wrong. Please try again.</p>
+          <button class="btn btn-primary" id="retry-btn" type="button">
+            Try Again
+          </button>
+        </div>
+      </div>
+      
+      <!-- Load More -->
+      <div class="load-more-wrapper" id="load-more-wrapper">
+        <button class="btn btn-secondary btn-load-more" id="load-more-btn" type="button">
+          Load More
+        </button>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Data provided by <a href="https://www.coingecko.com" target="_blank" rel="noopener noreferrer">CoinGecko</a></p>
+    </div>
+  </footer>
+  
+  <script src="app.js"></script>
+  <script src="markets.js"></script>
+</body>
+</html>
