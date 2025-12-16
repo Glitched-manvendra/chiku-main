@@ -16,6 +16,10 @@
     hasMore: true,
     lastUpdated: null,
     
+    // Sorting state
+    sortKey: 'rank',
+    sortDir: 'asc',
+    
     // Polling state
     pollInterval: 45000,     // Default 45s
     minPollInterval: 30000,  // Never faster than 30s
@@ -124,6 +128,62 @@
     
     elements.tableBody.appendChild(fragment);
   }
+
+  function getSortValue(coin, key) {
+    switch (key) {
+      case 'rank':
+        return coin.market_cap_rank ?? Number.POSITIVE_INFINITY;
+      case 'name':
+        return (coin.name || '').toLowerCase();
+      case 'price':
+        return coin.current_price ?? Number.NEGATIVE_INFINITY;
+      case 'change24h':
+        return coin.price_change_percentage_24h ?? Number.NEGATIVE_INFINITY;
+      case 'marketcap':
+        return coin.market_cap ?? Number.NEGATIVE_INFINITY;
+      default:
+        return null;
+    }
+  }
+
+  function sortCoins(coins) {
+    const dir = state.sortDir === 'asc' ? 1 : -1;
+    const key = state.sortKey;
+
+    return [...coins].sort((a, b) => {
+      const av = getSortValue(a, key);
+      const bv = getSortValue(b, key);
+
+      if (typeof av === 'string' && typeof bv === 'string') {
+        return av.localeCompare(bv) * dir;
+      }
+
+      const an = Number(av);
+      const bn = Number(bv);
+      if (Number.isNaN(an) && Number.isNaN(bn)) return 0;
+      if (Number.isNaN(an)) return 1;
+      if (Number.isNaN(bn)) return -1;
+      return (an - bn) * dir;
+    });
+  }
+
+  function updateSortUI() {
+    const headers = document.querySelectorAll('.crypto-table th.sortable[data-sort-key]');
+    headers.forEach(th => {
+      const key = th.getAttribute('data-sort-key');
+      const indicator = th.querySelector('.sort-indicator');
+      const isActive = key === state.sortKey;
+
+      if (isActive) {
+        const ariaSort = state.sortDir === 'asc' ? 'ascending' : 'descending';
+        th.setAttribute('aria-sort', ariaSort);
+        if (indicator) indicator.textContent = state.sortDir === 'asc' ? '▲' : '▼';
+      } else {
+        th.setAttribute('aria-sort', 'none');
+        if (indicator) indicator.textContent = '';
+      }
+    });
+  }
   
   function updateCoinRow(coin) {
     const existingRow = elements.tableBody.querySelector(`tr[data-coin-id="${coin.id}"]`);
@@ -187,7 +247,9 @@
       );
     }
     
-    renderCoins(state.filteredCoins);
+    const sorted = sortCoins(state.filteredCoins);
+    renderCoins(sorted);
+    updateSortUI();
     
     // Show/hide load more based on filter
     if (query) {
@@ -265,7 +327,7 @@
       state.hasMore = coins.length === state.perPage;
       
       hideError();
-      renderCoins(coins);
+      applyFilter();
       updateLastUpdated();
       hideLoading();
       
@@ -434,6 +496,32 @@
   
   // ============ Event Listeners ============
   function bindEvents() {
+    // Sorting
+    const headers = document.querySelectorAll('.crypto-table th.sortable[data-sort-key]');
+    headers.forEach(th => {
+      const onActivate = () => {
+        const key = th.getAttribute('data-sort-key');
+        if (!key) return;
+
+        if (state.sortKey === key) {
+          state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          state.sortKey = key;
+          state.sortDir = key === 'name' ? 'asc' : 'desc';
+        }
+
+        applyFilter();
+      };
+
+      th.addEventListener('click', onActivate);
+      th.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onActivate();
+        }
+      });
+    });
+
     // Search
     elements.searchInput.addEventListener('input', (e) => {
       handleSearch(e.target.value);
