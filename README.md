@@ -54,6 +54,74 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## System Design
+
+### High-level architecture
+
+- **Client (SPA shell)**
+  - Vite + React app served at `/`.
+  - The `/` route redirects users to the static CryptoTracker pages under `/crypto/index.html`.
+
+- **Client (CryptoTracker static app)**
+  - Static HTML/CSS/JS hosted in `public/crypto`.
+  - Runs fully in the browser and talks directly to CoinGecko.
+
+- **External dependency**
+  - **CoinGecko REST API** (`https://api.coingecko.com/api/v3`) for market listings and coin details.
+
+### Key modules
+
+- **Routing / entrypoints**
+  - `src/App.tsx`: React Router setup.
+  - `src/pages/Index.tsx`: redirects to `/crypto/index.html`.
+
+- **CryptoTracker pages**
+  - `public/crypto/index.html`: landing page.
+  - `public/crypto/markets.html` + `public/crypto/markets.js`: markets table (pagination, search, sorting, polling).
+  - `public/crypto/coin.html` + `public/crypto/coin.js`: coin details (reads `?id=...`).
+
+- **Shared client utilities**
+  - `public/crypto/app.js`: API wrapper, request cancellation, formatting, DOM helpers, debounce, rate-limit handling, theme.
+
+### Data flow
+
+- **Markets page**
+  - Browser loads `markets.html`.
+  - `markets.js` calls `API.fetch('/coins/markets?...')` to retrieve pages of coins (INR pricing).
+  - Results are rendered into a table; UI supports:
+    - Sorting (rank/name/price/24h change/market cap)
+    - Searching (client-side filter)
+    - Pagination (“Load More”)
+  - A polling loop refreshes all loaded pages periodically.
+
+- **Coin details page**
+  - Browser loads `coin.html?id=<coinId>`.
+  - `coin.js` calls `API.fetch('/coins/<coinId>')`.
+  - The description is sanitized to plain text before rendering.
+
+### Reliability and performance
+
+- **Request cancellation**
+  - `API.fetch()` uses `AbortController` and cancels any in-flight request with the same key.
+
+- **Rate limiting**
+  - HTTP `429` is mapped to a `RateLimitError`.
+  - Markets polling backs off (increasing interval) when rate-limited.
+
+- **Rendering performance**
+  - Markets updates attempt to update existing table rows instead of always rebuilding the full DOM.
+
+### Security considerations
+
+- **Untrusted content**
+  - Coin descriptions from CoinGecko can contain HTML; the app strips HTML before rendering.
+
+### Deployment model
+
+- This is a **static frontend**.
+- Build the Vite app and host the output along with `public/crypto`.
+- Since the CryptoTracker pages call CoinGecko from the browser, ensure your hosting supports HTTPS to avoid mixed-content issues.
+
 ## How can I deploy this project?
 
 Use your preferred hosting provider (for example Netlify, Vercel, or a VPS) and deploy the output of `npm run build`.
